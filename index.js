@@ -25,21 +25,26 @@
 
     await page.goto('https://www.google.com/maps/@29.7696912,-95.3576299,11.19z/data=!5m1!1e1');
     await page.waitForSelector('#omnibox-container'); // search box
-    await page.evaluate(selector => {
-      const elements = document.querySelectorAll(selector);
-      elements.forEach(e => {
-        e.parentNode.removeChild(e);
-      });
-    }, '#omnibox-container');
 
     for (let i = 0; i < 10; i++) {
       const now = new Date();
-      const date = now.toLocaleDateString('en-US');
+      var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      const date = now.toLocaleDateString('en-US', options);
       const time = now.toLocaleTimeString('en-US');
       const timestamp = now.getTime();
 
       if (i === 0) firstImage = timestamp;
       else if (i === 9) lastImage = timestamp;
+
+      const args = {date, time};
+      await page.evaluate(({date, time}) => {
+        let el = document.querySelector('#omnibox-container');
+        el.style = 'padding:10px;';
+        el.innerHTML = `
+          <div>${date}</div>
+          <div>${time}</div>
+        `;
+      }, args);
 
       console.log(`taking screenshot ${i + 1}/10 -- ${date} ${time} (${timestamp})`);
       await page.screenshot({path: `${workDir}/${timestamp}.png`});
@@ -51,12 +56,13 @@
   }
 
   function addToGif(images, counter = 0) {
-    console.log(`adding image ${counter + 1}/10 to gif`);
+    console.log(`adding image ${counter + 1}/10`);
     getPixels(images[counter], async (err, pixels) => {
       encoder.addFrame(pixels.data);
       encoder.read();
       if (counter === images.length - 1) {
         encoder.finish();
+        console.log('done adding images to gif');
         await fs.remove(workDir);
         console.log(`${workDir} removed`);
         process.exit(0);
