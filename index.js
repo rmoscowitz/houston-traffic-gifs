@@ -24,11 +24,34 @@
     const page = await browser.newPage();
 
     await page.goto('https://www.google.com/maps/@29.7696912,-95.3576299,11.19z/data=!5m1!1e1');
-    await page.waitForSelector('#omnibox-container'); // search box
+
+    // elements that must be visible before we start
+    await page.waitForSelector('#omnibox-container');
+    await page.waitForSelector('#fineprint-copyrights');
+
+    // elements to hide
+    await page.waitForSelector('#vasquette');
+    await page.waitForSelector('#minimap');
+    await page.waitForSelector('.app-vertical-widget-holder');
+    await page.waitForSelector('.app-horizontal-widget-holder');
+    await page.waitForSelector('.widget-layer-container');
+
+    await page.evaluate(() => {
+      const vasquette = document.querySelector('#vasquette');
+      vasquette.parentNode.removeChild(vasquette);
+      const minimap = document.querySelector('#minimap');
+      minimap.parentNode.removeChild(minimap);
+      const verticalWidgets = document.querySelector('.app-vertical-widget-holder');
+      verticalWidgets.parentNode.removeChild(verticalWidgets);
+      const horizontalWidgets = document.querySelector('.app-horizontal-widget-holder');
+      horizontalWidgets.parentNode.removeChild(horizontalWidgets);
+      const widgetLayerContainer = document.querySelector('.widget-layer-container');
+      widgetLayerContainer.parentNode.removeChild(widgetLayerContainer);
+    });
 
     for (let i = 0; i < 10; i++) {
       const now = new Date();
-      var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      var options = {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'};
       const date = now.toLocaleDateString('en-US', options);
       const time = now.toLocaleTimeString('en-US');
       const timestamp = now.getTime();
@@ -46,9 +69,10 @@
         `;
       }, args);
 
+      // await page.waitFor(60 * 1000);
+      await page.waitFor(1000);
       console.log(`taking screenshot ${i + 1}/10 -- ${date} ${time} (${timestamp})`);
       await page.screenshot({path: `${workDir}/${timestamp}.png`});
-      await page.waitFor(1000);
     }
 
     console.log('close puppeteer');
