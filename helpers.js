@@ -2,7 +2,7 @@ const { argv } = require('yargs');
 
 /** log a message to the console if debug messages are enabled */
 function log(msg) {
-  if (!argv.s) console.log(msg);
+  if (!argv.silent) console.log(msg);
 }
 
 /** sleep for a certain number of seconds */

@@ -11,13 +11,15 @@ yarn install
 node index.js
 ```
 
-Options:
+Arguments, all optional:
 
 `--screenshots=30` number of screenshots that will be taken (default = 10)
 
 `--delay=5` there is a built-in 3s delay between screenshots, this arg adds more seconds to the delay (default = 0)
 
-`-s` silent mode (turn off logs)
+`--silent` turn on silent mode (no logs)
+
+`--notweet` skip posting to Twitter
 
 ### Thanks
 https://github.com/aimerib/puppeteer-gif-cast

@@ -15,7 +15,7 @@
   let lastImage = undefined;
   let outFile = undefined;
 
-  const { delay = 0, screenshots = 10 } = argv;
+  const { notweet, delay = 0, screenshots = 10 } = argv;
 
   main();
 
@@ -61,7 +61,7 @@
     });
 
     const now = new Date();
-    let options = {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'};
+    let options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     const date = now.toLocaleDateString('en-US', options);
     const time = now.toLocaleTimeString('en-US');
     const timestamp = now.getTime();
@@ -69,8 +69,8 @@
     if (currentScreenshot === 0) firstImage = timestamp;
     else if (currentScreenshot === screenshots - 1) lastImage = timestamp;
 
-    const args = {date, time};
-    await page.evaluate(({date, time}) => {
+    const args = { date, time };
+    await page.evaluate(({ date, time }) => {
       let el = document.querySelector('#omnibox-container');
       el.style = 'padding:10px;background-color:white;opacity:0.75;';
       el.innerHTML = `
@@ -80,7 +80,7 @@
     }, args);
 
     log(`taking screenshot ${currentScreenshot + 1}/${screenshots} -- ${date} ${time} (${timestamp})`);
-    await page.screenshot({path: `${workDir}/${timestamp}.png`});
+    await page.screenshot({ path: `${workDir}/${timestamp}.png` });
 
     await browser.close();
   }
@@ -95,8 +95,10 @@
         encoder.finish();
         log('done adding images');
 
-        await sleep(10); // TODO - if I don't wait, Twitter says filetype is unrecognized... why?
-        await postToTwitter(`${outDir}/${outFile}.gif`);
+        if (!notweet) {
+          await sleep(10); // TODO - if I don't wait, Twitter says filetype is unrecognized... why?
+          await postToTwitter(`${outDir}/${outFile}.gif`);
+        }
 
         await fs.remove(workDir);
         log(`${workDir} removed`);
