@@ -1,13 +1,19 @@
-Create time lapse gifs of Houston traffic.
+Create timelapse gifs of Houston traffic.
 
-To get started, I relied heavily on https://github.com/aimerib/puppeteer-gif-cast.
+### Getting Started
 
-To run: `yarn run build`
+```
+yarn install
+node index.js
+```
 
+Options:
 
-Ideas:
-- command line flags for 
-    - using Google Maps or [TranStar](https://traffic.houstontranstar.org/layers/layers_ve.aspx?&inc=true&rc=true&rfw=true#)
-    - time lapse duration
-- schedule to run automatically during rush hour
-- push to Twitter?
+`--screenshots=30` number of screenshots that will be taken (default = 10)
+
+`--delay=5` there is a built-in 3s delay between screenshots, this arg adds more seconds to the delay (default = 0)
+
+`-d` turn on debug logs
+
+### Thanks
+https://github.com/aimerib/puppeteer-gif-cast

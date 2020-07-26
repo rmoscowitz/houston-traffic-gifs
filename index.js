@@ -3,6 +3,7 @@
   const puppeteer = require('puppeteer');
   const GIFEncoder = require('gif-encoder');
   const getPixels = require('get-pixels');
+  const { argv } = require('yargs')
 
   const encoder = new GIFEncoder(800, 600);
   const workDir = './temp';
@@ -11,15 +12,32 @@
   let firstImage = undefined;
   let lastImage = undefined;
 
+  const { d: DEBUG, delay = 0, screenshots = 10 } = argv;
+
+  main();
+
+  // ------------------------------------------------------
+
+  /** log a message to the console if debug messages are enabled */
+  function log(msg) {
+    if (DEBUG) console.log(msg);
+  }
+
+  /** sleep (blocking) for a certain number of seconds */
+  function sleep(seconds) {
+    return new Promise(resolve => setTimeout(resolve, seconds * 1000));
+  }
+
+  /** set up the temp and out directories */
   async function prepDirectory() {
-    console.log(`new working directory ${workDir}`);
+    log(`new working directory ${workDir}`);
     await fs.emptyDir(workDir);
-    console.log(`check output directory ${outDir}`);
+    log(`check output directory ${outDir}`);
     await fs.ensureDir(outDir);
   }
 
-  async function takeScreenshots() {
-    console.log('start puppeteer');
+  /** launch a new puppeteer instance and take a screenshot */
+  async function takeScreenshot(currentScreenshot) {
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
 
@@ -49,46 +67,42 @@
       widgetLayerContainer.parentNode.removeChild(widgetLayerContainer);
     });
 
-    for (let i = 0; i < 10; i++) {
-      const now = new Date();
-      var options = {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'};
-      const date = now.toLocaleDateString('en-US', options);
-      const time = now.toLocaleTimeString('en-US');
-      const timestamp = now.getTime();
+    const now = new Date();
+    let options = {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'};
+    const date = now.toLocaleDateString('en-US', options);
+    const time = now.toLocaleTimeString('en-US');
+    const timestamp = now.getTime();
 
-      if (i === 0) firstImage = timestamp;
-      else if (i === 9) lastImage = timestamp;
+    if (currentScreenshot === 0) firstImage = timestamp;
+    else if (currentScreenshot === screenshots - 1) lastImage = timestamp;
 
-      const args = {date, time};
-      await page.evaluate(({date, time}) => {
-        let el = document.querySelector('#omnibox-container');
-        el.style = 'padding:10px;';
-        el.innerHTML = `
+    const args = {date, time};
+    await page.evaluate(({date, time}) => {
+      let el = document.querySelector('#omnibox-container');
+      el.style = 'padding:10px;background-color:white;opacity:0.75;';
+      el.innerHTML = `
           <div>${date}</div>
           <div>${time}</div>
         `;
-      }, args);
+    }, args);
 
-      // await page.waitFor(60 * 1000);
-      await page.waitFor(1000);
-      console.log(`taking screenshot ${i + 1}/10 -- ${date} ${time} (${timestamp})`);
-      await page.screenshot({path: `${workDir}/${timestamp}.png`});
-    }
+    log(`taking screenshot ${currentScreenshot + 1}/${screenshots} -- ${date} ${time} (${timestamp})`);
+    await page.screenshot({path: `${workDir}/${timestamp}.png`});
 
-    console.log('close puppeteer');
     await browser.close();
   }
 
+  /** add all images in a list to a gif */
   function addToGif(images, counter = 0) {
-    console.log(`adding image ${counter + 1}/10`);
+    log(`adding image ${counter + 1}/${screenshots}`);
     getPixels(images[counter], async (err, pixels) => {
       encoder.addFrame(pixels.data);
       encoder.read();
       if (counter === images.length - 1) {
         encoder.finish();
-        console.log('done adding images to gif');
+        log('done adding images');
         await fs.remove(workDir);
-        console.log(`${workDir} removed`);
+        log(`${workDir} removed`);
         process.exit(0);
       } else {
         addToGif(images, ++counter);
@@ -96,6 +110,7 @@
     });
   }
 
+  /** look at the pngs in the working directory and create a gif */
   function createGif() {
     const listOfPNGs = fs.readdirSync(workDir)
       .map(a => a.substr(0, a.length - 4)) // filename without '.png'
@@ -103,7 +118,7 @@
       .map(a => `${workDir}/${a.substr(0, a.length)}.png`);
 
     const outFile = `${firstImage}-to-${lastImage}`;
-    console.log(`create gif ${outDir}/${outFile}.gif`);
+    log(`create gif ${outDir}/${outFile}.gif`);
     const stream = fs.createWriteStream(`${outDir}/${outFile}.gif`);
 
     // configure encoder
@@ -117,7 +132,15 @@
     addToGif(listOfPNGs);
   }
 
-  await prepDirectory();
-  await takeScreenshots();
-  await createGif();
+  /** main method, where the magic begins! */
+  async function main() {
+    await prepDirectory();
+
+    for (let i = 0; i < screenshots; i++) {
+      await takeScreenshot(i);
+      await sleep(delay);
+    }
+
+    await createGif();
+  }
 })();
