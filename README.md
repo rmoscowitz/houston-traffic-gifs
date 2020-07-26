@@ -1,4 +1,6 @@
-Create timelapse gifs of Houston traffic.
+### What is This?
+
+A node script that creates timelapse gifs of Houston traffic using Puppeteer.
 
 ### Getting Started
 
