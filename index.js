@@ -3,7 +3,9 @@
   const puppeteer = require('puppeteer');
   const GIFEncoder = require('gif-encoder');
   const getPixels = require('get-pixels');
-  const { argv } = require('yargs')
+  const { argv } = require('yargs');
+  const { log, sleep } = require('./helpers.js');
+  const { postToTwitter } = require('./twitter.js');
 
   const encoder = new GIFEncoder(800, 600);
   const workDir = './temp';
@@ -11,22 +13,13 @@
 
   let firstImage = undefined;
   let lastImage = undefined;
+  let outFile = undefined;
 
-  const { d: DEBUG, delay = 0, screenshots = 10 } = argv;
+  const { delay = 0, screenshots = 10 } = argv;
 
   main();
 
   // ------------------------------------------------------
-
-  /** log a message to the console if debug messages are enabled */
-  function log(msg) {
-    if (DEBUG) console.log(msg);
-  }
-
-  /** sleep (blocking) for a certain number of seconds */
-  function sleep(seconds) {
-    return new Promise(resolve => setTimeout(resolve, seconds * 1000));
-  }
 
   /** set up the temp and out directories */
   async function prepDirectory() {
@@ -101,8 +94,13 @@
       if (counter === images.length - 1) {
         encoder.finish();
         log('done adding images');
+
+        await sleep(10); // TODO - if I don't wait, Twitter says filetype is unrecognized... why?
+        await postToTwitter(`${outDir}/${outFile}.gif`);
+
         await fs.remove(workDir);
         log(`${workDir} removed`);
+
         process.exit(0);
       } else {
         addToGif(images, ++counter);
@@ -117,7 +115,7 @@
       .sort((a, b) => a - b)
       .map(a => `${workDir}/${a.substr(0, a.length)}.png`);
 
-    const outFile = `${firstImage}-to-${lastImage}`;
+    outFile = `${firstImage}-to-${lastImage}`;
     log(`create gif ${outDir}/${outFile}.gif`);
     const stream = fs.createWriteStream(`${outDir}/${outFile}.gif`);
 

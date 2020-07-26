@@ -1,6 +1,8 @@
 ### What is This?
 
-A node script that creates timelapse gifs of Houston traffic using Puppeteer.
+A node script that creates timelapse gifs of Houston traffic using Puppeteer then posts to Twitter.
+
+https://twitter.com/HtxTrafficGifs
 
 ### Getting Started
 
@@ -15,7 +17,7 @@ Options:
 
 `--delay=5` there is a built-in 3s delay between screenshots, this arg adds more seconds to the delay (default = 0)
 
-`-d` turn on debug logs
+`-s` silent mode (turn off logs)
 
 ### Thanks
 https://github.com/aimerib/puppeteer-gif-cast

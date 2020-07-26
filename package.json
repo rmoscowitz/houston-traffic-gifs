@@ -6,10 +6,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "dotenv": "^8.2.0",
     "fs-extra": "^8.0.1",
     "get-pixels": "^3.3.2",
     "gif-encoder": "^0.7.2",
     "puppeteer": "^1.17.0",
+    "twitter": "^1.7.1",
     "yargs": "^15.4.1"
   }
 }
