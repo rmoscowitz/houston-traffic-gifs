@@ -8,7 +8,7 @@ https://twitter.com/HtxTrafficGifs
 
 ```
 yarn install
-node index.js
+node src/index.js
 ```
 
 Arguments, all optional:
@@ -17,9 +17,9 @@ Arguments, all optional:
 
 `--delay=5` there is a built-in 3s delay between screenshots, this arg adds more seconds to the delay (default = 0)
 
-`--silent` turn on silent mode (no logs)
-
 `--notweet` skip posting to Twitter
 
-### Thanks
+### Resources
 https://github.com/aimerib/puppeteer-gif-cast
+https://github.com/ruphaa/twitter-bot
+https://github.com/netlify/netlify-lambda

@@ -1,12 +1,11 @@
 require('dotenv').config();
-const {log} = require('./helpers.js');
 const fs = require('fs');
 const Twitter = require('twitter');
 
 function postToTwitter(fileName) {
   return new Promise((resolve, reject) => {
     if (!fileName) {
-      log('fileName required');
+      console.log('fileName required');
       reject();
     }
 
@@ -21,9 +20,9 @@ function postToTwitter(fileName) {
 
     // upload media to Twitter
     client.post('media/upload', {media: data}, (error, media, _response) => {
-      log(`media ${JSON.stringify(media)}`);
-
       if (!error && media.media_id_string) {
+        console.log(`gif uploaded to twitter`);
+
         const [start, _end] = fileName.match(/([0-9])+/g);
         const startDate = new Date(+start);
         let options = {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'};
@@ -37,15 +36,17 @@ function postToTwitter(fileName) {
 
         client.post('statuses/update', status, (error, tweet, _response) => {
           if (!error) {
-            log(`success posting tweet ${JSON.stringify(tweet)}`);
+            const linkStart = tweet.text.indexOf('https://t.co');
+            const link = tweet.text.substr(linkStart);
+            console.log(`tweet posted ${link}`);
             resolve();
           } else {
-            log(`error posting tweet ${JSON.stringify(error)}`);
+            console.log(`error posting tweet ${JSON.stringify(error)}`);
             reject();
           }
         });
       } else {
-        log(`error uploading gif ${JSON.stringify(error)}`);
+        console.log(`error uploading gif ${JSON.stringify(error)}`);
         reject();
       }
     });
