@@ -7,6 +7,7 @@ https://twitter.com/HtxTrafficGifs
 ### Getting Started
 
 ```
+cd src
 yarn install
 node src/index.js
 ```
