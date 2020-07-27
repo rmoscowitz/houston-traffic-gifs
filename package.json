@@ -6,8 +6,8 @@
   "author": "",
   "license": "ISC",
   "scripts": {
-    "start:lambda": "netlify-lambda install src",
-    "build:lambda": "netlify-lambda build src"
+    "build:lambda": "netlify-lambda build src",
+    "postinstall": "netlify-lambda install"
   },
   "dependencies": {
     "dotenv": "^8.2.0",
