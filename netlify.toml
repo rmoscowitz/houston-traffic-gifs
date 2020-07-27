@@ -1,0 +1,3 @@
+[build]
+    functions = "src"
+    command = "yarn run build:lambda"

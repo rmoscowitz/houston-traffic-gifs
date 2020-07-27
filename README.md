@@ -21,5 +21,7 @@ Arguments, all optional:
 
 ### Resources
 https://github.com/aimerib/puppeteer-gif-cast
+
 https://github.com/ruphaa/twitter-bot
+
 https://github.com/netlify/netlify-lambda
