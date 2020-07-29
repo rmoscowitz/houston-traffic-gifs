@@ -1,3 +1,0 @@
-[build]
-    functions = "functions-build"
-    command = "yarn run build:lambda"

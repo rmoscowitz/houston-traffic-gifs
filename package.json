@@ -6,11 +6,15 @@
   "author": "",
   "license": "ISC",
   "scripts": {
-    "start:lambda": "netlify-lambda serve src",
-    "build:lambda": "netlify-lambda build src",
-    "postinstall": "netlify-lambda install src"
+    "build": "node src/index.js"
   },
   "dependencies": {
-    "netlify-lambda": "^2.0.1"
+    "dotenv": "^8.2.0",
+    "fs-extra": "^9.0.1",
+    "get-pixels": "^3.3.2",
+    "gif-encoder": "^0.7.2",
+    "puppeteer": "^5.2.1",
+    "twitter": "^1.7.1",
+    "yargs": "^15.4.1"
   }
 }
